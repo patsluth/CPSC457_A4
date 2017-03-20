@@ -7,25 +7,31 @@
  */
 public class BroadcastAgent 
 {
-
-	public BroadcastAgent() 
+	private LocalMemory localMemory = null;
+	
+	public BroadcastAgent(LocalMemory localMemory) 
 	{
+		this.localMemory = localMemory;
+		
+		BroadcastSystem.getSharedInstance().addBroadcastAgent(this);
 	}
 
 	/**
 	 * Send a store
 	 * @param message
 	 */
-	public void broadcast(Object message)
+	public void broadcast(String key, Object value)
 	{
-		// TODO: implement
+		BroadcastSystem.getSharedInstance().broadcast(key, value, this);
 	}
 	
 	/**
 	 * Receive a store
 	 */
-	public void receive()
+	public void receive(String key, Object value, BroadcastAgent sourceBroadcastAgent)
 	{
-		// TODO: implement
+		if (this.localMemory != null) {
+			this.localMemory.store(key, value);
+		}
 	}
 }

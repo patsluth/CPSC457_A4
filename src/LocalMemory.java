@@ -1,3 +1,5 @@
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Represents the local replica
@@ -6,30 +8,38 @@
  */
 public class LocalMemory 
 {
-
+	private ConcurrentMap<String, Object> data = null;
+	
 	public LocalMemory() 
 	{
+		this.data = new ConcurrentHashMap<>();
 	}
 	
 	/**
-	 * Returns the value of x read from memory
-	 * @param x
+	 * Returns the value for key
+	 * @param key
 	 * @return value
 	 */
-	public Object load(Object x)
+	public Object load(String key, Object defaultValue)
 	{
-		// TODO: implement
-		return null;
+		return this.data.getOrDefault(key, defaultValue);
 	}
 	
 	/**
-	 * Stores the value v of x to memory
-	 * @param x
-	 * @param v
+	 * Stores the value for key to memory
+	 * @param key
+	 * @param value
 	 */
-	public void store(Object x, Object v)
+	public void store(String key, Object value)
 	{
-		// TODO: implement
+		this.data.put(key, value);
+	}
+	
+	public void logData()
+	{
+		for (String key : this.data.keySet()) {
+			System.out.printf("\tkey[%s] = %s\n", key, this.data.get(key));
+		}
 	}
 
 }

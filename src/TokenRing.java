@@ -9,9 +9,17 @@
  */
 public class TokenRing 
 {
-
-	public TokenRing() 
+	private Token token;
+	
+	private boolean _isActive = false;	
+	public boolean isActive()
 	{
+		return this._isActive;
+	}
+	
+	public TokenRing(boolean isActive) 
+	{
+		this._isActive = isActive;	
 	}
 
 }

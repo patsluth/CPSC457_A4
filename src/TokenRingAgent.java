@@ -7,31 +7,47 @@
  */
 public class TokenRingAgent 
 {
-	private Object uniqueId;	// a unique identifier for the token
-	private boolean isActive;	// if false, then the token ring is non-existent; the value will be true if the token ring is active
-	private Object logicalId;	// logical id for the processor on the ring
-	private Object ringPredecessor;	// logical id of the predecessor on the ring
-	private Object ringSuccessor;	// logical is of the successor
+	private Token token = null;
+	private Object uniqueId = null;		
 	
-	public TokenRingAgent() 
+	
+	
+	
+	
+	private int processorID = -1;		
+	private boolean _isActive = false;	
+	public boolean isActive()
 	{
+		return this._isActive;
+	}
+	
+//	private Object logicalId = null;			
+	
+	private TokenRingAgent ringPredecessor = null;	
+	private TokenRingAgent ringSuccessor = null;		
+	
+	public TokenRingAgent(int processorID, boolean isActive) 
+	{
+		this.processorID = processorID;
+		this._isActive = isActive;
 	}
 	
 	/**
 	 * Returns the unique identifier for the token received from the predecessor
 	 * @return
 	 */
-	public Object recieveToken()
+	public Token recieveToken()
 	{
-		// TODO: implement
-		return null;
+		return this.token;
 	}
 	
 	/**
 	 * Sends the token to the successor
 	 */
-	public void sendToken(Token t)
+	public void sendToken(Token token)
 	{
-		// TODO: implement
+		if (this.ringSuccessor != null) {
+			this.ringSuccessor.token = token;
+		}
 	}
 }
