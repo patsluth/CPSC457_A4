@@ -3,7 +3,7 @@ public class Monitor
 {
     public static void main(String args[]) 
     {
-    	int n = 4;
+    	int n = 10;
 
     	Process[] processes = new Process[n];
     	
