@@ -34,6 +34,19 @@ public class LocalMemory
 	{
 		this.data.put(key, value);
 	}
+
+	
+	
+	public static String getFlagKey(int processID)
+	{
+		return String.format("flag %d", processID);
+	}
+	
+	public static String getTurnKey(int processID)
+	{
+		return String.format("turn %d", processID);
+	}
+
 	
 	public void logData()
 	{
@@ -41,5 +54,4 @@ public class LocalMemory
 			System.out.printf("\tkey[%s] = %s\n", key, this.data.get(key));
 		}
 	}
-
 }

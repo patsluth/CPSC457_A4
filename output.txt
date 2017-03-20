@@ -1,0 +1,46 @@
+
+
+************************************************************************
+1.
+************************************************************************
+
+************************************************************************
+2.
+************************************************************************
+
+process[0] has entered the critical section
+process[1] has entered the critical section
+process[1] has exited the critical section
+process[3] has entered the critical section
+process[0] has entered the critical section
+process[9] has entered the critical section
+process[4] has entered the critical section
+process[0] has entered the critical section
+process[0] has exited the critical section
+process[3] has entered the critical section
+process[4] has entered the critical section
+process[9] has entered the critical section
+process[3] has entered the critical section
+process[4] has entered the critical section
+process[9] has entered the critical section
+process[3] has entered the critical section
+process[4] has entered the critical section
+process[4] has exited the critical section
+process[9] has entered the critical section
+process[3] has entered the critical section
+process[3] has exited the critical section
+process[9] has entered the critical section
+process[9] has exited the critical section
+
+
+************************************************************************
+3.
+************************************************************************
+
+************************************************************************
+4.
+************************************************************************
+
+************************************************************************
+5.
+************************************************************************
