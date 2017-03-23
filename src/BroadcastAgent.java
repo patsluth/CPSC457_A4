@@ -30,6 +30,11 @@ public class BroadcastAgent
 	 */
 	public void receive(String key, Object value, BroadcastAgent sourceBroadcastAgent)
 	{
+		try {
+			Thread.sleep( (int) (Math.random() * 100)); 				//wait 0-100ms
+		} catch (InterruptedException e) {
+			System.out.println("Broadcast Agent Interrupted: " + e);
+		}
 		if (this.localMemory != null) {
 			this.localMemory.store(key, value);
 		}

@@ -7,8 +7,14 @@
 public class Token 
 {
 
-	public Token() 
+	private Integer uniqueID = null;
+	
+	public Token(Integer id) 
 	{
+		this.uniqueID = id;
 	}
 
+	public int getID() {
+		return uniqueID;
+	}
 }

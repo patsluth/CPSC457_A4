@@ -8,9 +8,7 @@
 public class TokenRingAgent 
 {
 	private Token token = null;
-	private Object uniqueId = null;		
-	
-	
+//	private Object uniqueId = null;		
 	
 	
 	
@@ -32,6 +30,17 @@ public class TokenRingAgent
 		this._isActive = isActive;
 	}
 	
+	
+	public void setPredecessor(TokenRingAgent predecessor) {
+		this.ringPredecessor = predecessor;
+	}
+	
+	public void setSuccessor(TokenRingAgent successor) {
+		this.ringSuccessor = successor;
+	}
+	
+	
+	
 	/**
 	 * Returns the unique identifier for the token received from the predecessor
 	 * @return
@@ -49,5 +58,6 @@ public class TokenRingAgent
 		if (this.ringSuccessor != null) {
 			this.ringSuccessor.token = token;
 		}
+		this.token = null;						//We no longer have the token either
 	}
 }

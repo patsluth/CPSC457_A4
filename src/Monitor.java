@@ -11,6 +11,9 @@ public class Monitor
  	   		processes[i] = new Process(i, n);
  	   	}
 
+// 	   	new TokenRing(true, processes); Question 3
+ 	   	
+ 	   	
  	   	for (int i = 0; i < n; i += 1) {
  	   		processes[i].start();
  	   	}
