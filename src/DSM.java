@@ -10,11 +10,13 @@ public class DSM
 {
 	private LocalMemory localMemory = null;
 	private BroadcastAgent broadcastAgent = null;
+	private Process processor = null;
 	
-	public DSM() 
+	public DSM(Process processor) 
 	{
 		this.localMemory = new LocalMemory();
 		this.broadcastAgent = new BroadcastAgent(this.localMemory);
+		this.processor = processor;	
 	}
 
 	/**
@@ -38,10 +40,19 @@ public class DSM
 	 */
 	public void store(String key, Object value)
 	{
+//		TODO: Question 3
+//		while (not have the token) { wait for the token }
+		while (true) {
+			if (processor.hasToken(0)) {
+				break;
+			}
+		} 
 		if (this.localMemory != null && this.broadcastAgent != null) {
 			this.localMemory.store(key, value);
 			this.broadcastAgent.broadcast(key, value);
 		}
+//		Send the token onwards after writing
+		processor.getTRA().sendToken(processor.getTRA().recieveToken()); //sends the token onwards
 	}
 	
 	public void logData()

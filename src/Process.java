@@ -20,8 +20,8 @@ public class Process
 		final Process _process = this;
 		
 		this.id = i;
-		this.distributedMemorySystem = new DSM();
-		this.tokenRingAgent = new TokenRingAgent(this.id, false);	// QUESTION 1
+		this.distributedMemorySystem = new DSM(this);
+		this.tokenRingAgent = new TokenRingAgent(this.id, false, n);	// QUESTION 1
 //		this.tokenRingAgent = new TokenRingAgent(this.id, true); 	//QUESTION 3
 		
 		this.thread = new Thread(new Runnable() 
@@ -30,12 +30,6 @@ public class Process
 			{
 				for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
 
-//Question 3 testing, ignore for now				
-//					while (true) {
-//						if (tokenRingAgent.recieveToken() != null) {
-//							break;
-//						}
-//					}
 					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j);	// flag[i] = j;
 					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i);	// turn[j] = i;
 					
@@ -62,6 +56,8 @@ public class Process
 						
 						if (!(flag_k_GTE_j && turn_j == i)) {
 							break;
+						} else if (tokenRingAgent.recieveToken() != null) { //you are stuck in a loop and don't need to write
+							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
 						}
 					}
 					System.out.println("process["+i+"] has succeeded on level "+j+".");
@@ -80,6 +76,11 @@ public class Process
 				
 //				System.out.printf("flag[%d] = %d\n", i, -1);
 //				_process.distributedMemorySystem.logData();
+				while (true) {
+					if (tokenRingAgent.recieveToken() != null) { //if you get the token
+						tokenRingAgent.sendToken(tokenRingAgent.recieveToken());	//pass it onwards
+					}
+				}
 			}
 		});
 	}
@@ -93,6 +94,18 @@ public class Process
 	
 	public TokenRingAgent getTRA() {
 		return this.tokenRingAgent;
+	}
+	
+	/**
+	 * Checks if this process' tokenRingAgent has a token with id i
+	 * @param tokenID
+	 */
+	public boolean hasToken(int tokenID) {
+		if (this.tokenRingAgent.recieveToken() != null) {
+			return (this.tokenRingAgent.recieveToken().getID() == tokenID);
+		} else {
+			return false;
+		}
 	}
 	
 	
