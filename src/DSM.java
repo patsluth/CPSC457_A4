@@ -39,12 +39,15 @@ public class DSM
 	 * @param key
 	 * @param value
 	 */
-	public void store(String key, Object value, boolean checkForToken)
+	public void store(String key, Object value, boolean checkForToken, boolean manyTokens)
 	{
-//		TODO: Question 3
 //		while (not have the token) { wait for the token }
+		int tokenValue = 0;
 		while (checkForToken) {
-			if (processor.hasToken((Integer)value)) {
+			if (manyTokens) {
+				tokenValue = (Integer)value;
+			}
+			if (processor.hasToken(tokenValue)) {
 				break;
 			}
 		} 
@@ -55,7 +58,7 @@ public class DSM
 //		Send the token onwards after writing
 //		Helpful Breakpoint here for testing
 		if (checkForToken) {
-			processor.getTRA().sendToken(processor.getTRA().recieveToken((Integer)value)); //sends the token onwards, q3
+			processor.getTRA().sendToken(processor.getTRA().recieveToken(tokenValue)); //sends the token onwards, q3
 		}
 	}
 	

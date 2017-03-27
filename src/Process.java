@@ -10,20 +10,37 @@ import java.util.concurrent.locks.Lock;
 public class Process
 {	
 	private Integer id;
+	public boolean finished = false;
 	
 	private DSM distributedMemorySystem = null;
 	private TokenRingAgent tokenRingAgent = null;
 	
 	private Thread thread = null;
-
+	
+	private boolean checkFlags = false;		//decides whether we have to check for a token before writing flags
+	private boolean checkKeys = false;		//decides whether we have to check for a token before writing keys
+	private boolean tokenRingActive = false;//denotes whether there is an active token ring in the system
+	private boolean manyTokens = false;
+	
 	public Process(final int i, final int n, int questionNumber) 
 	{
 		final Process _process = this;
 		
+		if (questionNumber == 1) {
+			//All values are already correct
+		} else if (questionNumber == 3) {
+			checkFlags = true;
+			checkKeys = true;
+			tokenRingActive = true;
+		} else if (questionNumber == 4) {
+			checkKeys = true;
+			tokenRingActive = true;
+			manyTokens = true;
+		}
+		
 		this.id = i;
 		this.distributedMemorySystem = new DSM(this);
-//		this.tokenRingAgent = new TokenRingAgent(this.id, false, n);	// QUESTION 1
-		this.tokenRingAgent = new TokenRingAgent(this.id, true, n); 	//QUESTION 3
+		this.tokenRingAgent = new TokenRingAgent(this.id, tokenRingActive, n); 	//QUESTION 3
 		
 		this.thread = new Thread(new Runnable() 
 		{
@@ -31,8 +48,8 @@ public class Process
 			{
 				for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
 
-					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, false);	// flag[i] = j;
-					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, true);	// turn[j] = i;
+					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, checkFlags, manyTokens);	// flag[i] = j;
+					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, checkKeys, manyTokens);	// turn[j] = i;
 					
 					//System.out.printf("flag[%d] = %d\n", i, j);
 					//System.out.printf("turn[%d] = %d\n", j, i);
@@ -56,7 +73,9 @@ public class Process
 //						if (temp != null) { //you are stuck in a loop and don't need to write
 //							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
 //						}
-						tokenRingAgent.passAllTokens();
+						if (tokenRingActive) {
+							tokenRingAgent.passAllTokens();
+						}
 					}
 					System.out.println("process["+i+"] has succeeded on level "+j+".");
 										
@@ -70,11 +89,12 @@ public class Process
 				}
 				
 				System.out.printf("process[%d] has exited the critical section\n", i);
-				_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, false);
+				_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, checkFlags, manyTokens);
 				
 //				System.out.printf("flag[%d] = %d\n", i, -1);
 //				_process.distributedMemorySystem.logData();
-				while (true) {
+				finished = true; //signal that process is done
+				while (tokenRingActive) {
 //					if (_process.getTRA().recieveToken() != null) { //if you get the token
 //						_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
 //					}
@@ -89,6 +109,10 @@ public class Process
 		if (!this.thread.isAlive()) {
 			this.thread.start();
 		}
+	}
+	
+	public void kill(){
+		this.tokenRingActive = false;
 	}
 	
 	public TokenRingAgent getTRA() {
