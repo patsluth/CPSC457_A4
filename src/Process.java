@@ -16,7 +16,7 @@ public class Process
 	
 	private Thread thread = null;
 
-	public Process(final int i, final int n) 
+	public Process(final int i, final int n, int questionNumber) 
 	{
 		final Process _process = this;
 		
@@ -31,8 +31,8 @@ public class Process
 			{
 				for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
 
-					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j);	// flag[i] = j;
-					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i);	// turn[j] = i;
+					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, false);	// flag[i] = j;
+					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, true);	// turn[j] = i;
 					
 					//System.out.printf("flag[%d] = %d\n", i, j);
 					//System.out.printf("turn[%d] = %d\n", j, i);
@@ -52,10 +52,11 @@ public class Process
 						if (!(flag_k_GTE_j && turn_j == i)) {
 							break;
 						}
-						Token temp = tokenRingAgent.recieveToken();
-						if (temp != null) { //you are stuck in a loop and don't need to write
-							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
-						}
+//						Token temp = tokenRingAgent.recieveToken();
+//						if (temp != null) { //you are stuck in a loop and don't need to write
+//							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
+//						}
+						tokenRingAgent.passAllTokens();
 					}
 					System.out.println("process["+i+"] has succeeded on level "+j+".");
 										
@@ -69,14 +70,15 @@ public class Process
 				}
 				
 				System.out.printf("process[%d] has exited the critical section\n", i);
-				_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1);
+				_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, false);
 				
 //				System.out.printf("flag[%d] = %d\n", i, -1);
 //				_process.distributedMemorySystem.logData();
 				while (true) {
-					if (_process.getTRA().recieveToken() != null) { //if you get the token
-						_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
-					}
+//					if (_process.getTRA().recieveToken() != null) { //if you get the token
+//						_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
+//					}
+					tokenRingAgent.passAllTokens();
 				}
 			}
 		});
@@ -98,11 +100,12 @@ public class Process
 	 * @param tokenID
 	 */
 	public boolean hasToken(int tokenID) {
-		if (this.tokenRingAgent.recieveToken() != null) {
-			return (this.tokenRingAgent.recieveToken().getID() == tokenID);
-		} else {
-			return false;
-		}
+//		if (this.tokenRingAgent.recieveToken(tokenID) != null) {
+//			return (this.tokenRingAgent.recieveToken().getID() == tokenID);
+//		} else {
+//			return false;
+//		}
+		return (this.tokenRingAgent.recieveToken(tokenID) != null);
 	}
 	
 	

@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class TokenRingAgent 
 {
-	private Token token = null;          		//the unique identifier for the token?
+	private Token[] tokens;          		//the unique identifier for the token?
 //	private Object uniqueId = null;
 	private List<TokenRing> tokenRings = new ArrayList<TokenRing>();;
 	
@@ -17,12 +17,18 @@ public class TokenRingAgent
 
 	private int ringPredecessor;
 	private int ringSuccessor;
-	private int index = 0;		
+	private int index = 0;
+	private int numProcessors;
 	
 	public TokenRingAgent(int processorID, boolean isActive, int numProcessors) 
 	{
 		this.processorID = processorID;
 		this._isActive = isActive;
+		tokens = new Token[numProcessors];
+		for (int i=0; i<numProcessors; i += 1) {
+			tokens[i] = null;
+		}
+		this.numProcessors = numProcessors;
 		if (processorID == 0) {
 			this.ringPredecessor = numProcessors-1;
 			this.ringSuccessor = this.processorID+1;
@@ -44,9 +50,9 @@ public class TokenRingAgent
 	 * Returns the unique identifier for the token received from the predecessor
 	 * @return
 	 */
-	public synchronized Token recieveToken()
+	public synchronized Token recieveToken(int i)
 	{
-		return this.token;
+		return this.tokens[i];
 	}
 	
 	/**
@@ -56,7 +62,7 @@ public class TokenRingAgent
 	{
 		tokenRings.get(token.getID()).getTRA(ringSuccessor).setToken(token);
 //		System.out.println("Token passed to process["+ringSuccessor+"].");
-		this.token = null;
+		this.tokens[token.getID()] = null;
 	}
 	
 	/**
@@ -64,8 +70,16 @@ public class TokenRingAgent
 	 * @param token
 	 */
 	
+	public void passAllTokens(){
+		for (int i = 0; i < numProcessors; i += 1) {
+			if (this.tokens[i] != null) {
+				this.sendToken(this.tokens[i]);
+			}
+		}
+	}
+	
 	public void setToken(Token token) {
-		this.token = token;
+		this.tokens[token.getID()] = token;
 	}
 	
 	public void addRing(TokenRing tr) {
