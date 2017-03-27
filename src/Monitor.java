@@ -3,7 +3,7 @@ public class Monitor
 {
     public static void main(String args[]) 
     {
-    	int n = 10;
+    	int n = 0;
 
     	Process[] processes = new Process[n];
     	
@@ -11,11 +11,11 @@ public class Monitor
  	   		processes[i] = new Process(i, n);
  	   	}
 
- 	   	new TokenRing(true, processes, 0); //Question 3
- 	   	
- 	   	
+
  	   	for (int i = 0; i < n; i += 1) {
  	   		processes[i].start();
  	   	}
+ 	   	
+ 	   	new TokenRing(true, processes, 0); //Question 3
     }   
 }

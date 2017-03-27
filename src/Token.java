@@ -2,6 +2,7 @@
 /**
  * Represents a token message.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public class Token 

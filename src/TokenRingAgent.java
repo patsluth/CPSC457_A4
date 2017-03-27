@@ -3,6 +3,7 @@ import java.util.*;
  * Each Processor has a TokenRingAgent object.
  * Each TokenRingAgent executes in a separate thread.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public class TokenRingAgent 
@@ -43,27 +44,19 @@ public class TokenRingAgent
 	 * Returns the unique identifier for the token received from the predecessor
 	 * @return
 	 */
-	public Token recieveToken()
+	public synchronized Token recieveToken()
 	{
-//		if (this.token != null) {
-//			return this.token;
-//		} else {
-//			return new Token(-1);
-//		}
 		return this.token;
 	}
 	
 	/**
 	 * Sends the token to the successor
 	 */
-	public void sendToken(Token token)
+	public synchronized void sendToken(Token token)
 	{
 		tokenRings.get(token.getID()).getTRA(ringSuccessor).setToken(token);
+//		System.out.println("Token passed to process["+ringSuccessor+"].");
 		this.token = null;
-//		if (this.ringSuccessor != null) {
-//			this.ringSuccessor.token = token;
-//		}
-//		this.token = null;						//We no longer have the token either
 	}
 	
 	/**

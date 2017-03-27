@@ -4,6 +4,7 @@ import java.util.concurrent.locks.Lock;
  * Represents a process. 
  * Each Process is executed in a separate thread.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public class Process
@@ -21,8 +22,8 @@ public class Process
 		
 		this.id = i;
 		this.distributedMemorySystem = new DSM(this);
-		this.tokenRingAgent = new TokenRingAgent(this.id, false, n);	// QUESTION 1
-//		this.tokenRingAgent = new TokenRingAgent(this.id, true); 	//QUESTION 3
+//		this.tokenRingAgent = new TokenRingAgent(this.id, false, n);	// QUESTION 1
+		this.tokenRingAgent = new TokenRingAgent(this.id, true, n); 	//QUESTION 3
 		
 		this.thread = new Thread(new Runnable() 
 		{
@@ -41,22 +42,18 @@ public class Process
 
 						boolean flag_k_GTE_j = false;
 						for (Integer k = 0; k < n; k += 1) {
-//							int temp = (Integer)_process.distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1);
 							if (((Integer)_process.distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1) >= j) && (k != i)){
 								flag_k_GTE_j = true;
 								break;
 							}
 						}
-//						Integer turn_i = (Integer)_process.distributedMemorySystem.load(LocalMemory.getTurnKey(i), -1);
-//						
-//						if (!(flag_k_GTE_j && turn_i == j)) {
-//							break;
-//						}
 						Integer turn_j = (Integer)_process.distributedMemorySystem.load(LocalMemory.getTurnKey(j), -1);
 						
 						if (!(flag_k_GTE_j && turn_j == i)) {
 							break;
-						} else if (tokenRingAgent.recieveToken() != null) { //you are stuck in a loop and don't need to write
+						}
+						Token temp = tokenRingAgent.recieveToken();
+						if (temp != null) { //you are stuck in a loop and don't need to write
 							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
 						}
 					}
@@ -66,7 +63,7 @@ public class Process
 				System.out.printf("process[%d] has entered the critical section\n", i);
 
 				try {
-					Thread.sleep(1000); 				//wait 1s; simulates working on something in the critical section
+					Thread.sleep(100); 				//wait 100ms; simulates working on something in the critical section
 				} catch (InterruptedException e) {
 					System.out.println("Process["+id+"] interrupted:" + e);
 				}
@@ -77,8 +74,8 @@ public class Process
 //				System.out.printf("flag[%d] = %d\n", i, -1);
 //				_process.distributedMemorySystem.logData();
 				while (true) {
-					if (tokenRingAgent.recieveToken() != null) { //if you get the token
-						tokenRingAgent.sendToken(tokenRingAgent.recieveToken());	//pass it onwards
+					if (_process.getTRA().recieveToken() != null) { //if you get the token
+						_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
 					}
 				}
 			}

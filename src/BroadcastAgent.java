@@ -3,6 +3,7 @@
  * Provides the implementation of the broadcast mechanism needed by DSM. 
  * Each BroadcastAgent executes in a separate thread.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public class BroadcastAgent 
@@ -31,7 +32,7 @@ public class BroadcastAgent
 	public void receive(String key, Object value, BroadcastAgent sourceBroadcastAgent)
 	{
 		try {
-			Thread.sleep( (int) (Math.random() * 100)); 				//wait 0-100ms
+			Thread.sleep( (int) (Math.random() * 10)); 				//wait 0-10ms
 		} catch (InterruptedException e) {
 			System.out.println("Broadcast Agent Interrupted: " + e);
 		}

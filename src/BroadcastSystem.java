@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * One BroadcastSystem object is shared between all BroadcastAgents. 
  * The BroadcastSystem executes in a separate thread.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public final class BroadcastSystem 

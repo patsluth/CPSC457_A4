@@ -4,6 +4,7 @@
  * Represents the DSM layer. 
  * DSM executes in a separate thread.
  * @author patsluth
+ * @author charlieroy
  *
  */
 public class DSM 
@@ -52,7 +53,8 @@ public class DSM
 			this.broadcastAgent.broadcast(key, value);
 		}
 //		Send the token onwards after writing
-		processor.getTRA().sendToken(processor.getTRA().recieveToken()); //sends the token onwards
+//		Helpful Breakpoint here for testing
+		processor.getTRA().sendToken(processor.getTRA().recieveToken()); //sends the token onwards, q3
 	}
 	
 	public void logData()
