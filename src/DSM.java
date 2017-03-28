@@ -135,9 +135,9 @@ public class DSM extends Thread
 //			}
 //		};
 		
-		synchronized (this.pendingRunnables) {
-			this.pendingRunnables.add(runnable);
-		}
+//		synchronized (this.pendingRunnables) {
+//			this.pendingRunnables.add(runnable);
+//		}
 	}
 	
 	public void logData()
