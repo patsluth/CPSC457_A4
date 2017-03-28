@@ -1,5 +1,3 @@
-import java.util.concurrent.locks.Lock;
-
 /**
  * Represents a process. 
  * Each Process is executed in a separate thread.
