@@ -33,17 +33,16 @@ public class DSM extends Thread
 	@Override public void run()
 	{
 		while (true) {
-			synchronized (DSM.this) {
-				
-				Runnable runnable = null;
-				
-				synchronized (this.pendingRunnables) {
-					if (this.pendingRunnables.size() > 0) {
-						runnable = this.pendingRunnables.remove(0);
-					}
+			Runnable runnable = null;
+			
+			synchronized (this.pendingRunnables) {
+				if (this.pendingRunnables.size() > 0) {
+					runnable = this.pendingRunnables.remove(0);
 				}
-				
-				if (runnable != null) {
+			}
+			
+			if (runnable != null) {
+				synchronized (this) {
 					runnable.run();
 				}
 			}

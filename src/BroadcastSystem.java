@@ -31,21 +31,21 @@ public final class BroadcastSystem
 		this.broadcastAgents = new ConcurrentLinkedQueue<>();
 	}
 	
-	public void addBroadcastAgent(BroadcastAgent broadcastAgent)
+	public synchronized void addBroadcastAgent(BroadcastAgent broadcastAgent)
 	{
 		if (broadcastAgent != null) {
 			this.broadcastAgents.add(broadcastAgent);
 		}
 	}
 	
-	public void removeBroadcastAgent(BroadcastAgent broadcastAgent)
+	public synchronized void removeBroadcastAgent(BroadcastAgent broadcastAgent)
 	{
 		if (broadcastAgent != null && this.broadcastAgents.contains(broadcastAgent)) {
 			this.broadcastAgents.remove(broadcastAgent);
 		}
 	}
 
-	public void broadcast(String key, Object value, BroadcastAgent sourceBroadcastAgent)
+	public synchronized void broadcast(String key, Object value, BroadcastAgent sourceBroadcastAgent)
 	{
 		if (sourceBroadcastAgent != null && this.broadcastAgents.contains(sourceBroadcastAgent)) {
 			for (BroadcastAgent broadcastAgent : this.broadcastAgents) {
