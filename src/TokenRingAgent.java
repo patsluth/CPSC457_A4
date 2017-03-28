@@ -93,7 +93,7 @@ public class TokenRingAgent extends Thread
 			@Override public void run() 
 			{
 				synchronized (tokenRings) {
-					if (tokenRings != null) {
+					if (tokenRings != null && token != null) {
 						
 						TokenRing tokenRing = tokenRings.get(token.getID());
 						

@@ -13,40 +13,17 @@ import com.sun.swing.internal.plaf.synth.resources.synth;
  * @author charlieroy
  *
  */
-public class DSM extends Thread
+public class DSM
 {
 	private LocalMemory localMemory = null;
 	private BroadcastAgent broadcastAgent = null;
 	private Process process = null;
-	
-	private List<Runnable> pendingRunnables = new ArrayList<>();
 	
 	public DSM(Process process) 
 	{
 		this.localMemory = new LocalMemory();
 		this.broadcastAgent = new BroadcastAgent(this.localMemory);
 		this.process = process;	
-		
-		this.start();
-	}
-	
-	@Override public void run()
-	{
-		while (true) {
-			Runnable runnable = null;
-			
-			synchronized (this.pendingRunnables) {
-				if (this.pendingRunnables.size() > 0) {
-					runnable = this.pendingRunnables.remove(0);
-				}
-			}
-			
-			if (runnable != null) {
-				synchronized (this) {
-					runnable.run();
-				}
-			}
-		}
 	}
 
 	/**
@@ -54,7 +31,7 @@ public class DSM extends Thread
 	 * @param key
 	 * @return value
 	 */
-	public Object load(String key, Object defaultValue)
+	public synchronized Object load(String key, Object defaultValue)
 	{
 		if (this.localMemory != null) {
 			return this.localMemory.load(key, defaultValue);
@@ -68,76 +45,33 @@ public class DSM extends Thread
 	 * @param key
 	 * @param value
 	 */
-	public void store(final String key, final Object value, final boolean checkForToken, final boolean manyTokens)
+	public synchronized void store(final String key, final Object value, final boolean checkForToken, final boolean manyTokens)
 	{
-//		Thread thread = new Thread(new Runnable() 
-//		{
-//			@Override public void run() 
-//			{
-//				synchronized (DSM.this) {
-//					// while (not have the token) { wait for the token }
-//					int tokenValue = 0;
-//					while (checkForToken) {
-//						if (manyTokens) {
-//							tokenValue = (Integer)value;
-//						}
-//						if (process.hasToken(tokenValue)) {
-//							break;
-//						}
-//					} 
-//					if (localMemory != null && broadcastAgent != null) {
-//						localMemory.store(key, value);
-//						broadcastAgent.broadcast(key, value);
-//					}
-//
-//					// Send the token onwards after writing
-//					// Helpful Breakpoint here for testing
-//					if (checkForToken) {
-//						process.getTRA().sendToken(process.getTRA().recieveToken(tokenValue)); //sends the token onwards, q3
-//					}
-//				}
-//			}
-//		});
-//		thread.start();
-		
-		
-		
-		
-//		Runnable runnable = new Runnable() 
-//		{
-//			@Override public void run() 
-//			{
-				// while (not have the token) { wait for the token }
-				int tokenValue = 0;
-				while (checkForToken) {
-					if (manyTokens) {
-						tokenValue = (Integer)value;
-					}
-					if (process.hasToken(tokenValue)) {
-						break;
-					}
-				} 
-				if (localMemory != null && broadcastAgent != null) {
-					localMemory.store(key, value);
-					broadcastAgent.broadcast(key, value);
-				}
+		// while (not have the token) { wait for the token }
+		int tokenValue = 0;
+		while (checkForToken) {
+			if (manyTokens) {
+				tokenValue = (Integer)value;
+			}
+			if (process.hasToken(tokenValue)) {
+				break;
+			}
+		} 
+		if (localMemory != null && broadcastAgent != null) {
+			localMemory.store(key, value);
+			broadcastAgent.broadcast(key, value);
+		}
 
-				// Send the token onwards after writing
-				// Helpful Breakpoint here for testing
-				if (checkForToken) {
-					synchronized (process) {
-						TokenRingAgent tokenRingAgent = process.getTRA();
-						if (tokenRingAgent != null) {
-							tokenRingAgent.sendToken(tokenRingAgent.recieveToken(tokenValue)); //sends the token onwards, q3
-						}
-					}
+		// Send the token onwards after writing
+		// Helpful Breakpoint here for testing
+		if (checkForToken) {
+			synchronized (process) {
+				TokenRingAgent tokenRingAgent = process.getTRA();
+				if (tokenRingAgent != null) {
+					tokenRingAgent.sendToken(tokenRingAgent.recieveToken(tokenValue)); //sends the token onwards, q3
 				}
-//			}
-//		};
-		
-//		synchronized (this.pendingRunnables) {
-//			this.pendingRunnables.add(runnable);
-//		}
+			}
+		}
 	}
 	
 	public void logData()
