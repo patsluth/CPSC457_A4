@@ -3,7 +3,7 @@ public class Monitor
 {
     public static void main(String args[]) 
     {
-    	int n = 10; //number of processes
+    	int n = 100; //number of processes
     	/*
     	 * int questionNumber
     	 * Valid values 1, 3, 4 relating to their questions

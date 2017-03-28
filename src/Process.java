@@ -24,8 +24,6 @@ public class Process
 	
 	public Process(final int i, final int n, int questionNumber) 
 	{
-		final Process _process = this;
-		
 		if (questionNumber == 1) {
 			//All values are already correct
 		} else if (questionNumber == 3) {
@@ -46,59 +44,61 @@ public class Process
 		{
 			@Override public void run() 
 			{
-				for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
+				synchronized (Process.this) {
+					for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
 
-					_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, checkFlags, manyTokens);	// flag[i] = j;
-					_process.distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, checkKeys, manyTokens);	// turn[j] = i;
-					
-					//System.out.printf("flag[%d] = %d\n", i, j);
-					//System.out.printf("turn[%d] = %d\n", j, i);
-					
-					// WHILE there exists a k such that flag[k] >= j and turn[i] == j
-					while (true) {
+						distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, checkFlags, manyTokens);	// flag[i] = j;
+						distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, checkKeys, manyTokens);	// turn[j] = i;
+						
+						//System.out.printf("flag[%d] = %d\n", i, j);
+						//System.out.printf("turn[%d] = %d\n", j, i);
+						
+						// WHILE there exists a k such that flag[k] >= j and turn[i] == j
+						while (true) {
 
-						boolean flag_k_GTE_j = false;
-						for (Integer k = 0; k < n; k += 1) {
-							if (((Integer)_process.distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1) >= j) && (k != i)){
-								flag_k_GTE_j = true;
+							boolean flag_k_GTE_j = false;
+							for (Integer k = 0; k < n; k += 1) {
+								if (((Integer)distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1) >= j) && (k != i)){
+									flag_k_GTE_j = true;
+									break;
+								}
+							}
+							Integer turn_j = (Integer)distributedMemorySystem.load(LocalMemory.getTurnKey(j), -1);
+							
+							if (!(flag_k_GTE_j && turn_j == i)) {
 								break;
 							}
+//							Token temp = tokenRingAgent.recieveToken();
+//							if (temp != null) { //you are stuck in a loop and don't need to write
+//								tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
+//							}
+							if (tokenRingActive) {
+								tokenRingAgent.passAllTokens();
+							}
 						}
-						Integer turn_j = (Integer)_process.distributedMemorySystem.load(LocalMemory.getTurnKey(j), -1);
-						
-						if (!(flag_k_GTE_j && turn_j == i)) {
-							break;
-						}
-//						Token temp = tokenRingAgent.recieveToken();
-//						if (temp != null) { //you are stuck in a loop and don't need to write
-//							tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
-//						}
-						if (tokenRingActive) {
-							tokenRingAgent.passAllTokens();
-						}
+						System.out.println("process["+i+"] has succeeded on level "+j+".");
+											
 					}
-					System.out.println("process["+i+"] has succeeded on level "+j+".");
-										
-				}
-				System.out.printf("process[%d] has entered the critical section\n", i);
+					System.out.printf("process[%d] has entered the critical section\n", i);
 
-				try {
-					Thread.sleep(100); 				//wait 100ms; simulates working on something in the critical section
-				} catch (InterruptedException e) {
-					System.out.println("Process["+id+"] interrupted:" + e);
-				}
-				
-				System.out.printf("process[%d] has exited the critical section\n", i);
-				_process.distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, checkFlags, manyTokens);
-				
-//				System.out.printf("flag[%d] = %d\n", i, -1);
-//				_process.distributedMemorySystem.logData();
-				finished = true; //signal that process is done
-				while (tokenRingActive) {
-//					if (_process.getTRA().recieveToken() != null) { //if you get the token
-//						_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
-//					}
-					tokenRingAgent.passAllTokens();
+					try {
+						Thread.sleep(100); 				//wait 100ms; simulates working on something in the critical section
+					} catch (InterruptedException e) {
+						System.out.println("Process["+id+"] interrupted:" + e);
+					}
+					
+					System.out.printf("process[%d] has exited the critical section\n", i);
+					distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, checkFlags, manyTokens);
+					
+//					System.out.printf("flag[%d] = %d\n", i, -1);
+//					_process.distributedMemorySystem.logData();
+					finished = true; //signal that process is done
+					while (tokenRingActive) {
+//						if (_process.getTRA().recieveToken() != null) { //if you get the token
+//							_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
+//						}
+						tokenRingAgent.passAllTokens();
+					}
 				}
 			}
 		});
@@ -123,7 +123,7 @@ public class Process
 	 * Checks if this process' tokenRingAgent has a token with id i
 	 * @param tokenID
 	 */
-	public boolean hasToken(int tokenID) {
+	public synchronized boolean hasToken(int tokenID) {
 //		if (this.tokenRingAgent.recieveToken(tokenID) != null) {
 //			return (this.tokenRingAgent.recieveToken().getID() == tokenID);
 //		} else {

@@ -20,7 +20,7 @@ public class LocalMemory
 	 * @param key
 	 * @return value
 	 */
-	public Object load(String key, Object defaultValue)
+	public synchronized Object load(String key, Object defaultValue)
 	{
 		return this.data.getOrDefault(key, defaultValue);
 	}
@@ -30,19 +30,19 @@ public class LocalMemory
 	 * @param key
 	 * @param value
 	 */
-	public void store(String key, Object value)
+	public synchronized void store(String key, Object value)
 	{
 		this.data.put(key, value);
 	}
 
 	
 	
-	public static String getFlagKey(int processID)
+	public synchronized static String getFlagKey(int processID)
 	{
 		return String.format("flag %d", processID);
 	}
 	
-	public static String getTurnKey(int processID)
+	public synchronized static String getTurnKey(int processID)
 	{
 		return String.format("turn %d", processID);
 	}

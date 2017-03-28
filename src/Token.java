@@ -7,7 +7,6 @@
  */
 public class Token 
 {
-
 	private Integer uniqueID = null;
 	
 	public Token(Integer id) 
@@ -15,7 +14,8 @@ public class Token
 		this.uniqueID = id;
 	}
 
-	public int getID() {
+	public synchronized int getID()
+	{
 		return uniqueID;
 	}
 }

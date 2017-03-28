@@ -37,7 +37,9 @@ public class BroadcastAgent
 			System.out.println("Broadcast Agent Interrupted: " + e);
 		}
 		if (this.localMemory != null) {
-			this.localMemory.store(key, value);
+			synchronized (BroadcastAgent.this) {
+				this.localMemory.store(key, value);
+			}
 		}
 	}
 }

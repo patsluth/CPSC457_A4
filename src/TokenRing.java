@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+
+import com.sun.swing.internal.plaf.synth.resources.synth;
 
 /**
  * This is the arrangement of the token ring. 
@@ -13,7 +16,7 @@ public class TokenRing
 	private Token token;
 	private boolean _isActive = false;	
 	
-	private TokenRingAgent[] _TRAs;
+	private ArrayList<TokenRingAgent> _TRAs;
 	
 	public TokenRing(boolean isActive, Process[] processes, int tokenID) 
 	{
@@ -21,22 +24,25 @@ public class TokenRing
 		if (!this._isActive) {		//if inactive do nothing else
 			return;
 		}
-		_TRAs = new TokenRingAgent[processes.length];
+		this._TRAs = new ArrayList<>();
 		for (int i = 0; i < processes.length; i++) {
-			_TRAs[i] = processes[i].getTRA();
-			_TRAs[i].addRing(this);
+			TokenRingAgent tokenRingAgent = processes[i].getTRA();
+			this._TRAs.add(tokenRingAgent);
+			tokenRingAgent.addRing(this);
 		}		
 		token = new Token(tokenID);
-		_TRAs[0].setToken(token);
+		this._TRAs.get(0).setToken(token);
 	}
 
-	
-	public boolean isActive()
+	public synchronized boolean isActive()
 	{
 		return this._isActive;
 	}
 	
-	public TokenRingAgent getTRA(int index) {
-		return _TRAs[index];
+	public synchronized TokenRingAgent getTRA(int index) 
+	{
+		synchronized (this._TRAs) {
+			return this._TRAs.get(index);
+		}
 	}
 }
