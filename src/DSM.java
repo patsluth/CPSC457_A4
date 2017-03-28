@@ -103,10 +103,10 @@ public class DSM extends Thread
 		
 		
 		
-		Runnable runnable = new Runnable() 
-		{
-			@Override public void run() 
-			{
+//		Runnable runnable = new Runnable() 
+//		{
+//			@Override public void run() 
+//			{
 				// while (not have the token) { wait for the token }
 				int tokenValue = 0;
 				while (checkForToken) {
@@ -132,8 +132,8 @@ public class DSM extends Thread
 						}
 					}
 				}
-			}
-		};
+//			}
+//		};
 		
 		synchronized (this.pendingRunnables) {
 			this.pendingRunnables.add(runnable);
