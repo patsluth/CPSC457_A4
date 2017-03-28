@@ -7,6 +7,8 @@
  */
 public class Process
 {	
+	private static int numCriticalEntrys = 0;
+	
 	private Integer id;
 	public boolean finished = false;
 	
@@ -42,61 +44,71 @@ public class Process
 		{
 			@Override public void run() 
 			{
-				synchronized (Process.this) {
-					for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
-
-						distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, checkFlags, manyTokens);	// flag[i] = j;
-						distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, checkKeys, manyTokens);	// turn[j] = i;
-						
-						//System.out.printf("flag[%d] = %d\n", i, j);
-						//System.out.printf("turn[%d] = %d\n", j, i);
-						
-						// WHILE there exists a k such that flag[k] >= j and turn[i] == j
-						while (true) {
-
-							boolean flag_k_GTE_j = false;
-							for (Integer k = 0; k < n; k += 1) {
-								if (((Integer)distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1) >= j) && (k != i)){
-									flag_k_GTE_j = true;
+				for (int repeats = 0; repeats < 100; repeats++) { //repeats < number of loops
+					synchronized (Process.this) {
+						for (Integer j = 0; j <= n - 2; j += 1) {	// Loop is repeated N-1 times
+	
+							distributedMemorySystem.store(LocalMemory.getFlagKey(i), j, checkFlags, manyTokens);	// flag[i] = j;
+							distributedMemorySystem.store(LocalMemory.getTurnKey(j), i, checkKeys, manyTokens);	// turn[j] = i;
+							
+							//System.out.printf("flag[%d] = %d\n", i, j);
+							//System.out.printf("turn[%d] = %d\n", j, i);
+							
+							// WHILE there exists a k such that flag[k] >= j and turn[i] == j
+							while (true) {
+	
+								boolean flag_k_GTE_j = false;
+								for (Integer k = 0; k < n; k += 1) {
+									if (((Integer)distributedMemorySystem.load(LocalMemory.getFlagKey(k), -1) >= j) && (k != i)){
+										flag_k_GTE_j = true;
+										break;
+									}
+								}
+								Integer turn_j = (Integer)distributedMemorySystem.load(LocalMemory.getTurnKey(j), -1);
+								
+								if (!(flag_k_GTE_j && turn_j == i)) {
 									break;
 								}
+	//							Token temp = tokenRingAgent.recieveToken();
+	//							if (temp != null) { //you are stuck in a loop and don't need to write
+	//								tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
+	//							}
+								if (tokenRingActive) {
+									tokenRingAgent.passAllTokens();
+								}
 							}
-							Integer turn_j = (Integer)distributedMemorySystem.load(LocalMemory.getTurnKey(j), -1);
-							
-							if (!(flag_k_GTE_j && turn_j == i)) {
-								break;
-							}
-//							Token temp = tokenRingAgent.recieveToken();
-//							if (temp != null) { //you are stuck in a loop and don't need to write
-//								tokenRingAgent.sendToken(tokenRingAgent.recieveToken());
-//							}
-							if (tokenRingActive) {
-								tokenRingAgent.passAllTokens();
-							}
+							System.out.println("process["+i+"] has succeeded on level "+j+".");
+												
 						}
-						System.out.println("process["+i+"] has succeeded on level "+j+".");
-											
+						System.out.printf("process[%d] has entered the critical section\n", i);
+	
+						try {
+							Thread.sleep(100); 				//wait 100ms; simulates working on something in the critical section
+						} catch (InterruptedException e) {
+							System.out.println("Process["+id+"] interrupted:" + e);
+						}
+						incCriticals();
+						
+						System.out.printf("process[%d] has exited the critical section\n", i);
+						distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, checkFlags, manyTokens);
+						
+	//					System.out.printf("flag[%d] = %d\n", i, -1);
+	//					_process.distributedMemorySystem.logData();
+//						finished = true; //signal that process is done
+//						while (tokenRingActive) {
+//	//						if (_process.getTRA().recieveToken() != null) { //if you get the token
+//	//							_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
+//	//						}
+//							tokenRingAgent.passAllTokens();
+//						}
 					}
-					System.out.printf("process[%d] has entered the critical section\n", i);
-
-					try {
-						Thread.sleep(100); 				//wait 100ms; simulates working on something in the critical section
-					} catch (InterruptedException e) {
-						System.out.println("Process["+id+"] interrupted:" + e);
-					}
-					
-					System.out.printf("process[%d] has exited the critical section\n", i);
-					distributedMemorySystem.store(LocalMemory.getFlagKey(i), -1, checkFlags, manyTokens);
-					
-//					System.out.printf("flag[%d] = %d\n", i, -1);
-//					_process.distributedMemorySystem.logData();
-					finished = true; //signal that process is done
-					while (tokenRingActive) {
+				}
+				finished = true; //signal that process is done
+				while (tokenRingActive) {
 //						if (_process.getTRA().recieveToken() != null) { //if you get the token
 //							_process.getTRA().sendToken(_process.getTRA().recieveToken());	//pass it onwards
 //						}
-						tokenRingAgent.passAllTokens();
-					}
+					tokenRingAgent.passAllTokens();
 				}
 			}
 		});
@@ -128,9 +140,12 @@ public class Process
 //			return false;
 //		}
 		return (this.tokenRingAgent.recieveToken(tokenID) != null);
+	}	
+	
+	public static synchronized void incCriticals() {
+		numCriticalEntrys++;
+		System.out.println("Critical section successes: "+numCriticalEntrys);
 	}
-	
-	
 	
 //	 public Process(int id, CriticalSection cs) {
 //			this.id = id;

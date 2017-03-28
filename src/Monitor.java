@@ -11,7 +11,7 @@ public class Monitor
     	 * 3 = one token ring; success expected		//working
     	 * 4 = n token rings; success expected		//working
     	 */
-    	int questionNumber = 4;
+    	int questionNumber = 3;
     	
     	if ((questionNumber != 1) && ((questionNumber != 3) && (questionNumber != 4))) {
     		System.out.println("Please change the question number in the source code to 1, 3, or 4 depending on what you want to run.");
